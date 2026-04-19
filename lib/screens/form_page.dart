@@ -91,6 +91,18 @@ class _AppointmentPageState extends State<FormPage> {
     reasonController.clear();
   }
 
+  String? selectedReason;
+
+  final List<String> medicalReasons = [
+    "General Checkup",
+    "Fever",
+    "Headache",
+    "Stomach Pain",
+    "Skin Issue",
+    "Follow-up",
+    "Other",
+  ];
+
   @override
   Widget build(BuildContext context) {
     return MainScaffold(
@@ -109,7 +121,7 @@ class _AppointmentPageState extends State<FormPage> {
                         fontSize: 15, fontWeight: FontWeight.bold)),
               ],
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 40),
 
             // ✅ Select Doctor button — wide
             GestureDetector(
@@ -203,14 +215,24 @@ class _AppointmentPageState extends State<FormPage> {
               ),
             ),
 
-            const SizedBox(height: 15),
+            const SizedBox(height: 25),
 
-            TextField(
-              controller: reasonController,
+            DropdownButtonFormField<String>(
+              value: selectedReason,
+              items: medicalReasons.map((reason) {
+                return DropdownMenuItem(
+                  value: reason,
+                  child: Text(reason),
+                );
+              }).toList(),
+              onChanged: (value) {
+                setState(() => selectedReason = value);
+              },
               decoration: InputDecoration(
-                labelText: "Reason",
+                labelText: "Select Reason",
                 border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12)),
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
             ),
 
