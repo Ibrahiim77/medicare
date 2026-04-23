@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../main_screen.dart';
 import '../appointments_provider.dart';
 import '../user_provider.dart';
-import 'select_doctor_page.dart';       // ← add kiya
+import 'select_doctor_page.dart';
 
 class FormPage extends StatefulWidget {
   const FormPage({super.key});
@@ -14,7 +14,7 @@ class FormPage extends StatefulWidget {
 class _AppointmentPageState extends State<FormPage> {
   DateTime? selectedDate;
   TimeOfDay? selectedTime;
-  String? selectedDoctor;               // ← add kiya
+  String? selectedDoctor;
 
   final TextEditingController nameController = TextEditingController();
   final TextEditingController reasonController = TextEditingController();
@@ -37,7 +37,7 @@ class _AppointmentPageState extends State<FormPage> {
     if (picked != null) setState(() => selectedTime = picked);
   }
 
-  // ✅ Doctor select page kholo aur result lo
+
   Future<void> pickDoctor() async {
     final result = await Navigator.push<String>(
       context,
@@ -53,7 +53,7 @@ class _AppointmentPageState extends State<FormPage> {
         selectedTime == null ||
         nameController.text.isEmpty ||
         reasonController.text.isEmpty ||
-        selectedDoctor == null) {        // ← doctor bhi check karo
+        selectedDoctor == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Please fill all fields and select a doctor")),
       );
@@ -69,7 +69,7 @@ class _AppointmentPageState extends State<FormPage> {
         date: selectedDate!,
         time: selectedTime!,
         email: userEmail,
-        doctorName: selectedDoctor!,    // ← add kiya
+        doctorName: selectedDoctor!,
       ),
     );
 
@@ -85,7 +85,7 @@ class _AppointmentPageState extends State<FormPage> {
     setState(() {
       selectedDate = null;
       selectedTime = null;
-      selectedDoctor = null;            // ← reset
+      selectedDoctor = null;
     });
     nameController.clear();
     reasonController.clear();

@@ -5,7 +5,7 @@ PreferredSizeWidget myAppBar() {
     title: Text("MediCare",
     style: TextStyle(fontWeight: .bold),),
     backgroundColor: Colors.blue,
-    automaticallyImplyLeading: false, // remove back arrow
+    automaticallyImplyLeading: false,
     centerTitle: true,
   );
 }
