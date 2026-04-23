@@ -7,7 +7,7 @@ class Appointment {
   final TimeOfDay time;
   final String status;
   final String email;
-  final String doctorName;             // ← add kiya
+  final String doctorName;
 
   Appointment({
     required this.name,
@@ -16,7 +16,7 @@ class Appointment {
     required this.time,
     this.status = "Pending",
     this.email = '',
-    this.doctorName = '',              // ← default empty
+    this.doctorName = '',
   });
 
   Appointment copyWith({String? status}) {

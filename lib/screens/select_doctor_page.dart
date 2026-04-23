@@ -2,7 +2,13 @@ import 'package:flutter/material.dart';
 import '../Doctors/DoctorStore.dart';
 
 class SelectDoctorPage extends StatelessWidget {
-  const SelectDoctorPage({super.key});
+
+  final void Function(String doctorName) onDoctorSelected;
+
+  const SelectDoctorPage({
+    super.key,
+    required this.onDoctorSelected,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +33,10 @@ class SelectDoctorPage extends StatelessWidget {
           ),
           itemBuilder: (context, index) {
             final doctor = availableDoctors[index];
-            return _DoctorCard(doctor: doctor);
+            return _DoctorCard(
+              doctor: doctor,
+              onDoctorSelected: onDoctorSelected,
+            );
           },
         ),
       ),
@@ -37,7 +46,12 @@ class SelectDoctorPage extends StatelessWidget {
 
 class _DoctorCard extends StatelessWidget {
   final Doctor doctor;
-  const _DoctorCard({required this.doctor});
+  final void Function(String doctorName) onDoctorSelected;
+
+  const _DoctorCard({
+    required this.doctor,
+    required this.onDoctorSelected,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -46,19 +60,11 @@ class _DoctorCard extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: Colors.blue.shade100),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.blue.withOpacity(0.06),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const SizedBox(height: 16),
-
 
           CircleAvatar(
             radius: 40,
@@ -72,7 +78,6 @@ class _DoctorCard extends StatelessWidget {
 
           const SizedBox(height: 12),
 
-
           Text(
             doctor.specialty,
             style: TextStyle(
@@ -84,7 +89,6 @@ class _DoctorCard extends StatelessWidget {
           ),
 
           const SizedBox(height: 4),
-
 
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -100,7 +104,6 @@ class _DoctorCard extends StatelessWidget {
 
           const SizedBox(height: 12),
 
-
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12),
             child: SizedBox(
@@ -115,7 +118,9 @@ class _DoctorCard extends StatelessWidget {
                 ),
                 onPressed: () {
 
-                  Navigator.pop(context, doctor.name);
+                  onDoctorSelected(doctor.name);
+
+                  Navigator.pop(context);
                 },
                 child: const Text(
                   "Select",

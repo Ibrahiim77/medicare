@@ -15,9 +15,19 @@ class _AppointmentPageState extends State<FormPage> {
   DateTime? selectedDate;
   TimeOfDay? selectedTime;
   String? selectedDoctor;
+  String? selectedReason;
 
   final TextEditingController nameController = TextEditingController();
-  final TextEditingController reasonController = TextEditingController();
+
+  final List<String> medicalReasons = [
+    "General Checkup",
+    "Fever",
+    "Headache",
+    "Stomach Pain",
+    "Skin Issue",
+    "Follow-up",
+    "Other",
+  ];
 
   Future<void> pickDate() async {
     DateTime? picked = await showDatePicker(
@@ -38,24 +48,28 @@ class _AppointmentPageState extends State<FormPage> {
   }
 
 
-  Future<void> pickDoctor() async {
-    final result = await Navigator.push<String>(
+  void pickDoctor() {
+    Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => const SelectDoctorPage()),
+      MaterialPageRoute(
+        builder: (_) => SelectDoctorPage(
+          onDoctorSelected: (doctorName) {
+            setState(() => selectedDoctor = doctorName);
+          },
+        ),
+      ),
     );
-    if (result != null) {
-      setState(() => selectedDoctor = result);
-    }
   }
 
   void _book() {
     if (selectedDate == null ||
         selectedTime == null ||
         nameController.text.isEmpty ||
-        reasonController.text.isEmpty ||
+        selectedReason == null ||
         selectedDoctor == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please fill all fields and select a doctor")),
+        const SnackBar(
+            content: Text("Please fill all fields and select a doctor")),
       );
       return;
     }
@@ -65,7 +79,7 @@ class _AppointmentPageState extends State<FormPage> {
     AppointmentProvider.of(context).addAppointment(
       Appointment(
         name: nameController.text.trim(),
-        reason: reasonController.text.trim(),
+        reason: selectedReason!,
         date: selectedDate!,
         time: selectedTime!,
         email: userEmail,
@@ -82,32 +96,21 @@ class _AppointmentPageState extends State<FormPage> {
       ),
     );
 
+
     setState(() {
       selectedDate = null;
       selectedTime = null;
       selectedDoctor = null;
+      selectedReason = null;
     });
     nameController.clear();
-    reasonController.clear();
   }
-
-  String? selectedReason;
-
-  final List<String> medicalReasons = [
-    "General Checkup",
-    "Fever",
-    "Headache",
-    "Stomach Pain",
-    "Skin Issue",
-    "Follow-up",
-    "Other",
-  ];
 
   @override
   Widget build(BuildContext context) {
     return MainScaffold(
       currentIndex: 1,
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -206,6 +209,7 @@ class _AppointmentPageState extends State<FormPage> {
 
             const SizedBox(height: 20),
 
+
             TextField(
               controller: nameController,
               decoration: InputDecoration(
@@ -215,7 +219,8 @@ class _AppointmentPageState extends State<FormPage> {
               ),
             ),
 
-            const SizedBox(height: 25),
+            const SizedBox(height: 20),
+
 
             DropdownButtonFormField<String>(
               value: selectedReason,

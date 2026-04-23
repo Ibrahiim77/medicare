@@ -83,7 +83,7 @@ class DocAppointmentsPage extends StatelessWidget {
                                 ),
                                 const SizedBox(width: 12),
 
-                                // Details
+
                                 Expanded(
                                   child: Column(
                                     crossAxisAlignment:
@@ -118,7 +118,7 @@ class DocAppointmentsPage extends StatelessWidget {
                                       ),
                                       const SizedBox(height: 4),
 
-                                      // Date + Time
+
                                       Row(
                                         children: [
                                           Icon(Icons.calendar_today,
@@ -146,7 +146,7 @@ class DocAppointmentsPage extends StatelessWidget {
                                       ),
                                       const SizedBox(height: 4),
 
-                                      // Reason
+
                                       Text(
                                         "Reason: ${appt.reason}",
                                         style: TextStyle(
@@ -157,7 +157,7 @@ class DocAppointmentsPage extends StatelessWidget {
                                   ),
                                 ),
 
-                                // Status badge
+
                                 Container(
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 10, vertical: 4),
@@ -179,7 +179,7 @@ class DocAppointmentsPage extends StatelessWidget {
                             ),
                           ),
 
-                          // Confirm/Reject — sirf pending pe
+
                           if (appt.status == "Pending")
                             Padding(
                               padding: const EdgeInsets.only(
