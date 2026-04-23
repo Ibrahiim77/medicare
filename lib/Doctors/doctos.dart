@@ -14,7 +14,7 @@ class _DoctorsPageState extends State<DoctorsPage> {
   Widget build(BuildContext context) {
     final appointments = AppointmentProvider.of(context).appointments;
 
-    // Pending appointments count
+
     final pendingCount = appointments.length;
 
     return DocScaffold(
@@ -27,7 +27,7 @@ class _DoctorsPageState extends State<DoctorsPage> {
             children: [
               const SizedBox(height: 20),
 
-              // ✅ Doctor welcome banner — same style as patient banner
+
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
@@ -90,7 +90,7 @@ class _DoctorsPageState extends State<DoctorsPage> {
 
               const SizedBox(height: 25),
 
-              // ✅ Stats row — same card style
+
               Row(
                 children: [
                   _statCard(
@@ -118,7 +118,7 @@ class _DoctorsPageState extends State<DoctorsPage> {
 
               const SizedBox(height: 25),
 
-              // ✅ Quick actions — same as patient serviceBox style
+
               const Text(
                 "Quick Actions",
                 style:
@@ -162,7 +162,7 @@ class _DoctorsPageState extends State<DoctorsPage> {
 
               const SizedBox(height: 25),
 
-              // ✅ Recent appointments — same blue card as patient side
+
               const Text(
                 "Recent Appointments",
                 style:
@@ -197,7 +197,7 @@ class _DoctorsPageState extends State<DoctorsPage> {
                 children: appointments.take(3).map((appt) {
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 10),
-                    // ✅ Exact same card as patient homepage
+
                     child: Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
@@ -206,7 +206,7 @@ class _DoctorsPageState extends State<DoctorsPage> {
                       ),
                       child: Row(
                         children: [
-                          // Date badge — same as patient side
+
                           Container(
                             padding: const EdgeInsets.all(10),
                             decoration: BoxDecoration(
@@ -258,7 +258,7 @@ class _DoctorsPageState extends State<DoctorsPage> {
                             ),
                           ),
 
-                          // ✅ Pending badge
+
                           Container(
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 8, vertical: 4),
@@ -318,7 +318,6 @@ class _DoctorsPageState extends State<DoctorsPage> {
     );
   }
 
-  // ✅ Stat card for pending/confirmed/rejected counts
   Widget _statCard({
     required IconData icon,
     required String label,

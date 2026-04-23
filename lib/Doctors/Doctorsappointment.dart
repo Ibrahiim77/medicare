@@ -99,7 +99,7 @@ class DocAppointmentsPage extends StatelessWidget {
                                       ),
                                       const SizedBox(height: 2),
 
-                                      // ✅ Email — null safe
+
                                       Row(
                                         children: [
                                           Icon(Icons.email_outlined,

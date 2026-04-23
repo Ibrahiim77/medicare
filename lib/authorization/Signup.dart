@@ -24,8 +24,8 @@ class _SignupPageState extends State<SignupPage> {
   void dispose() {
     emailController.dispose();
     userNameController.dispose();
-    passwordController.dispose();         // ← was disposing emailController twice, fixed
-    super.dispose();                      // ← was missing
+    passwordController.dispose();
+    super.dispose();
   }
 
   void signup() {
@@ -57,7 +57,7 @@ class _SignupPageState extends State<SignupPage> {
     }
 
     if (isValid) {
-      // ✅ Save to UserProvider noticeboard
+
       UserProvider.of(context).registerUser(
         UserData(
           username: userName,

@@ -53,13 +53,13 @@ class DoctorProvider extends InheritedWidget {
     return provider!;
   }
 
-  // ✅ Sirf tab rebuild karo jab doctor change ho
+
   @override
   bool updateShouldNotify(DoctorProvider oldWidget) =>
       loggedInDoctor != oldWidget.loggedInDoctor;
 }
 
-// ✅ Building manager — data ka asli maalik
+
 class DoctorStore extends StatefulWidget {
   final Widget child;
   const DoctorStore({super.key, required this.child});

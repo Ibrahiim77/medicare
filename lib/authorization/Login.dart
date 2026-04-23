@@ -50,19 +50,18 @@ class _LoginPageState extends State<LoginPage> {
 
     if (!isValid) return;
 
-    // ✅ Step 1 — Pehle doctor check karo
+
     final matchedDoctor = availableDoctors.where(
           (d) => d.email == email && d.password == password,
     ).firstOrNull;
 
     if (matchedDoctor != null) {
-      // Doctor mila — noticeboard pe save karo aur doctor page pe bhejo
+
       DoctorProvider.of(context).loginDoctor(matchedDoctor);
       Navigator.pushReplacementNamed(context, '/doctors');
       return;
     }
 
-    // ✅ Step 2 — Doctor nahi mila, patient check karo
     final user = UserProvider.of(context).user;
 
     if (user == null) {
@@ -75,11 +74,11 @@ class _LoginPageState extends State<LoginPage> {
       return;
     }
 
-    // ✅ Step 3 — Patient hai — home pe bhejo
+
     Navigator.pushReplacementNamed(context, '/home');
   }
 
-  // ✅ UI bilkul same — kuch nahi badla
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'doctorsNav.dart';
-import 'DoctorStore.dart';           // ← add this
+import 'DoctorStore.dart';
 
 class DocProfilePage extends StatelessWidget {
   const DocProfilePage({super.key});
@@ -30,7 +30,7 @@ class _EditableProfileBodyState extends State<EditableProfileBody> {
   bool isEditingEmail = false;
   bool isEditingPassword = false;
 
-  // ✅ late means we fill these in didChangeDependencies, not here
+
   late TextEditingController usernameController;
   late TextEditingController emailController;
   late TextEditingController passwordController;
@@ -38,7 +38,7 @@ class _EditableProfileBodyState extends State<EditableProfileBody> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // ✅ Pull from the noticeboard instead of hardcoded values
+
     final user = DoctorProvider.of(context).loggedInDoctor;
     usernameController = TextEditingController(text: user?.name ?? '');
     emailController = TextEditingController(text: user?.email ?? '');
