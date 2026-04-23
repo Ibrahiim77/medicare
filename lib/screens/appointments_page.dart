@@ -103,7 +103,7 @@ class AppointmentsPage extends StatelessWidget {
 
                                 const SizedBox(height: 6), // ✅ ADDED
 
-                                // ✅ ADDED: STATUS BADGE
+
                                 Container(
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 8, vertical: 4),

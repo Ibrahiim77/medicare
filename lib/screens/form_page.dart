@@ -123,7 +123,7 @@ class _AppointmentPageState extends State<FormPage> {
             ),
             const SizedBox(height: 40),
 
-            // ✅ Select Doctor button — wide
+
             GestureDetector(
               onTap: pickDoctor,
               child: Container(
@@ -158,7 +158,7 @@ class _AppointmentPageState extends State<FormPage> {
 
             const SizedBox(height: 15),
 
-            // Date picker
+
             GestureDetector(
               onTap: pickDate,
               child: Container(
@@ -182,7 +182,7 @@ class _AppointmentPageState extends State<FormPage> {
 
             const SizedBox(height: 15),
 
-            // Time picker
+
             GestureDetector(
               onTap: pickTime,
               child: Container(

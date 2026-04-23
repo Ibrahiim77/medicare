@@ -20,7 +20,7 @@ class SelectDoctorPage extends StatelessWidget {
         child: GridView.builder(
           itemCount: availableDoctors.length,
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,          // ← 2 doctors per row
+            crossAxisCount: 2,
             crossAxisSpacing: 12,
             mainAxisSpacing: 12,
             childAspectRatio: 0.75,
@@ -59,7 +59,7 @@ class _DoctorCard extends StatelessWidget {
         children: [
           const SizedBox(height: 16),
 
-          // ✅ Doctor photo
+
           CircleAvatar(
             radius: 40,
             backgroundColor: Colors.blue[100],
@@ -72,7 +72,7 @@ class _DoctorCard extends StatelessWidget {
 
           const SizedBox(height: 12),
 
-          // ✅ Specialty
+
           Text(
             doctor.specialty,
             style: TextStyle(
@@ -85,7 +85,7 @@ class _DoctorCard extends StatelessWidget {
 
           const SizedBox(height: 4),
 
-          // ✅ Name
+
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8),
             child: Text(
@@ -100,7 +100,7 @@ class _DoctorCard extends StatelessWidget {
 
           const SizedBox(height: 12),
 
-          // ✅ Select button
+
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12),
             child: SizedBox(
@@ -114,7 +114,7 @@ class _DoctorCard extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: 8),
                 ),
                 onPressed: () {
-                  // ✅ Doctor ka naam wapis form page pe bhejo
+
                   Navigator.pop(context, doctor.name);
                 },
                 child: const Text(

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../main_screen.dart';
-import '../appointments_provider.dart'; // ✅ ADDED
+import '../appointments_provider.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -8,13 +8,13 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    // ✅ ADDED: Get appointments from provider
+
     final appointments = AppointmentProvider.of(context).appointments;
 
-    // ✅ ADDED: Sort by date
+
     final upcoming = [...appointments]..sort((a, b) => a.date.compareTo(b.date));
 
-    // ✅ ADDED: Take only 2
+
     final limited = upcoming.take(2).toList();
 
     return MainScaffold(
@@ -27,7 +27,7 @@ class HomePage extends StatelessWidget {
             children: [
               const SizedBox(height: 20),
 
-              // Search bar
+
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 decoration: BoxDecoration(
@@ -111,7 +111,7 @@ class HomePage extends StatelessWidget {
 
               const SizedBox(height: 15),
 
-              // ✅ ADDED: Dynamic upcoming appointments (max 2)
+
               if (limited.isEmpty)
                 const Text("No upcoming appointments")
               else
@@ -181,7 +181,7 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  // ✅ ADDED helper
+
   String _weekday(int d) {
     const days = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
     return days[(d - 1).clamp(0, 6)];

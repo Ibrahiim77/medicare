@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../main_screen.dart';
-import '../user_provider.dart';           // ← add this
+import '../user_provider.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -30,7 +30,7 @@ class _EditableProfileBodyState extends State<EditableProfileBody> {
   bool isEditingEmail = false;
   bool isEditingPassword = false;
 
-  // ✅ late means we fill these in didChangeDependencies, not here
+
   late TextEditingController usernameController;
   late TextEditingController emailController;
   late TextEditingController passwordController;
@@ -38,7 +38,7 @@ class _EditableProfileBodyState extends State<EditableProfileBody> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // ✅ Pull from the noticeboard instead of hardcoded values
+
     final user = UserProvider.of(context).user;
     usernameController = TextEditingController(text: user?.username ?? '');
     emailController = TextEditingController(text: user?.email ?? '');
@@ -54,7 +54,7 @@ class _EditableProfileBodyState extends State<EditableProfileBody> {
   }
 
   void saveChanges() {
-    // ✅ Write back to the noticeboard
+
     UserProvider.of(context).updateUser(
       usernameController.text.trim(),
       emailController.text.trim(),
@@ -120,7 +120,7 @@ class _EditableProfileBodyState extends State<EditableProfileBody> {
               icon: Icon(isEditing ? Icons.check : Icons.edit),
               onPressed: () {
                 setState(() => toggleEdit());
-                if (isEditing) saveChanges(); // ✅ save when check is tapped
+                if (isEditing) saveChanges();
               },
             ),
           ],
