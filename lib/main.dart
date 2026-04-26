@@ -9,7 +9,6 @@ import 'screens/form_page.dart';
 import 'screens/appointments_page.dart';
 import 'authorization/Login.dart';
 import 'authorization/Signup.dart';
-import './colors/color_choser.dart';
 import 'package:check/Doctors/doctos.dart';
 import 'package:check/Doctors/doctorsNav.dart';
 import 'package:check/Doctors/Docprofile.dart';
@@ -36,7 +35,6 @@ class MyApp extends StatelessWidget {
               '/profile':      (context) => const ProfilePage(),
               '/signup':       (context) => const SignupPage(),
               '/appointments': (context) => const AppointmentsPage(),
-              '/color_demo':   (context) => ColorChooser(),
               '/doctors':      (context) => DoctorsPage(),
               '/docprofile' : (context) => DocProfilePage(),
               '/doctorsappointment' : (context) => DocAppointmentsPage(),
