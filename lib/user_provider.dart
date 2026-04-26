@@ -1,17 +1,13 @@
 import 'package:flutter/material.dart';
 
-/// =======================
-/// 🔐 ROLE ENUM
-/// =======================
+
 enum UserRole {
   user,
   doctor,
   admin,
 }
 
-/// =======================
-/// 🧑‍⚕️ DOCTOR MODEL + DATA
-/// =======================
+
 class Doctor {
   final String name;
   final String email;
@@ -59,9 +55,7 @@ const List<Doctor> availableDoctors = [
   ),
 ];
 
-/// =======================
-/// 🛠 ADMIN DATA
-/// =======================
+
 class Admin {
   final String email;
   final String password;
@@ -79,9 +73,7 @@ const List<Admin> admins = [
   ),
 ];
 
-/// =======================
-/// 👤 USER MODEL
-/// =======================
+
 class UserData {
   final String username;
   final String email;
@@ -110,9 +102,7 @@ class UserData {
   }
 }
 
-/// =======================
-/// 🔁 RBAC PROVIDER
-/// =======================
+
 class UserProvider extends InheritedWidget {
   final UserData? user;
   final void Function(UserData) setUser;
@@ -138,9 +128,7 @@ class UserProvider extends InheritedWidget {
       user != oldWidget.user;
 }
 
-/// =======================
-/// 🏪 STORE (STATE HOLDER)
-/// =======================
+
 class UserStore extends StatefulWidget {
   final Widget child;
   const UserStore({super.key, required this.child});
@@ -171,15 +159,13 @@ class _UserStoreState extends State<UserStore> {
   }
 }
 
-/// =======================
-/// 🔐 LOGIN HELPER FUNCTION
-/// =======================
+
 void loginUser({
   required BuildContext context,
   required String email,
   required String password,
 }) {
-  // ---------------- ADMIN LOGIN ----------------
+
   final adminMatch = admins.where(
         (a) => a.email == email && a.password == password,
   ).toList();
@@ -198,7 +184,7 @@ void loginUser({
     return;
   }
 
-  // ---------------- DOCTOR LOGIN ----------------
+
   final doctorMatch = availableDoctors.where(
         (d) => d.email == email && d.password == password,
   ).toList();
@@ -219,7 +205,7 @@ void loginUser({
     return;
   }
 
-  // ---------------- USER LOGIN ----------------
+
   final user = UserProvider.of(context).user;
 
   if (user == null) return;

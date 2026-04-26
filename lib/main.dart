@@ -1,3 +1,4 @@
+import 'package:check/Admin/AdminMon.dart';
 import 'package:flutter/material.dart';
 import 'appointments_provider.dart';
 import 'user_provider.dart';
@@ -12,6 +13,10 @@ import 'package:check/Doctors/doctos.dart';
 import 'package:check/Doctors/doctorsNav.dart';
 import 'package:check/Doctors/Docprofile.dart';
 import 'Doctors/Doctorsappointment.dart';
+import './Admin/Admin_Page.dart';
+import './Admin/AddDoctor.dart';
+import './Admin/AdminMon.dart';
+import './Admin/AddAdmin.dart';
 
 void main() {
   runApp(const MyApp());
@@ -37,6 +42,10 @@ class MyApp extends StatelessWidget {
               '/doctors':      (context) => DoctorsPage(),
               '/docprofile' : (context) => DocProfilePage(),
               '/doctorsappointment' : (context) => DocAppointmentsPage(),
+              '/admin' :  (context) => const AdminDashboard(),
+              '/add-doctor': (context) => const AddDoctorPage(),
+              '/admin-monitor' : (context) => const AdminMonitorPage(),
+              '/add-admin' : (context) => const AddAdminPage(),
             },
             title: 'Flutter Demo',
             theme: ThemeData(

@@ -1,4 +1,3 @@
-import 'package:check/authorization/logAppbar.dart';
 import 'package:flutter/material.dart';
 import '../user_provider.dart';
 import 'logAppbar.dart';
@@ -9,6 +8,7 @@ class SignupPage extends StatefulWidget {
   @override
   State<SignupPage> createState() => _SignupPageState();
 }
+
 
 class _SignupPageState extends State<SignupPage> {
   final TextEditingController emailController = TextEditingController();
@@ -59,9 +59,7 @@ class _SignupPageState extends State<SignupPage> {
 
     if (!isValid) return;
 
-    // =========================
-    // 👤 CREATE USER (RBAC)
-    // =========================
+
     UserProvider.of(context).setUser(
       UserData(
         username: userName,
@@ -100,7 +98,7 @@ class _SignupPageState extends State<SignupPage> {
 
                 const SizedBox(height: 35),
 
-                // USERNAME
+
                 TextField(
                   controller: userNameController,
                   decoration: InputDecoration(
@@ -114,7 +112,6 @@ class _SignupPageState extends State<SignupPage> {
 
                 const SizedBox(height: 20),
 
-                // EMAIL
                 TextField(
                   controller: emailController,
                   decoration: InputDecoration(
@@ -128,7 +125,7 @@ class _SignupPageState extends State<SignupPage> {
 
                 const SizedBox(height: 20),
 
-                // PASSWORD
+
                 TextField(
                   controller: passwordController,
                   obscureText: isPasswordHidden,
@@ -175,7 +172,7 @@ class _SignupPageState extends State<SignupPage> {
 
                 const SizedBox(height: 10),
 
-                // LOGIN BUTTON
+
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(

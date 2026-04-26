@@ -20,7 +20,7 @@ class _SelectDoctorPageState extends State<SelectDoctorPage> {
   Widget build(BuildContext context) {
     final doctors = availableDoctors;
 
-    // 🔎 SMART SEARCH (name + specialty + partial specialty words)
+
     final filteredDoctors = doctors.where((doctor) {
       final q = query.toLowerCase().trim();
 
@@ -46,9 +46,7 @@ class _SelectDoctorPageState extends State<SelectDoctorPage> {
       body: Column(
         children: [
 
-          // =========================
-          // 🔎 SEARCH BAR
-          // =========================
+
           Padding(
             padding: const EdgeInsets.all(16),
             child: TextField(
@@ -70,9 +68,7 @@ class _SelectDoctorPageState extends State<SelectDoctorPage> {
             ),
           ),
 
-          // =========================
-          // GRID LIST
-          // =========================
+
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(16),
@@ -110,9 +106,7 @@ class _SelectDoctorPageState extends State<SelectDoctorPage> {
   }
 }
 
-// =========================
-// DOCTOR CARD
-// =========================
+
 class _DoctorCard extends StatelessWidget {
   final Doctor doctor;
   final void Function(String doctorName) onDoctorSelected;
@@ -136,7 +130,6 @@ class _DoctorCard extends StatelessWidget {
 
           const SizedBox(height: 16),
 
-          // ICON
           CircleAvatar(
             radius: 40,
             backgroundColor: Colors.blue,
@@ -149,7 +142,7 @@ class _DoctorCard extends StatelessWidget {
 
           const SizedBox(height: 12),
 
-          // SPECIALTY
+
           Text(
             doctor.specialty,
             style: TextStyle(
@@ -161,7 +154,6 @@ class _DoctorCard extends StatelessWidget {
 
           const SizedBox(height: 4),
 
-          // NAME
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8),
             child: Text(
@@ -176,7 +168,7 @@ class _DoctorCard extends StatelessWidget {
 
           const SizedBox(height: 12),
 
-          // SELECT BUTTON
+
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12),
             child: SizedBox(

@@ -1,4 +1,3 @@
-import 'package:check/authorization/logAppbar.dart';
 import 'package:flutter/material.dart';
 import '../user_provider.dart';
 import 'logAppbar.dart';
@@ -48,9 +47,7 @@ class _LoginPageState extends State<LoginPage> {
 
     final provider = UserProvider.of(context);
 
-    // =========================
-    // 🛠 ADMIN LOGIN
-    // =========================
+
     final adminMatch = admins.where(
           (a) => a.email == email && a.password == password,
     ).toList();
@@ -69,9 +66,7 @@ class _LoginPageState extends State<LoginPage> {
       return;
     }
 
-    // =========================
-    // 🧑‍⚕️ DOCTOR LOGIN
-    // =========================
+
     final doctorMatch = availableDoctors.where(
           (d) => d.email == email && d.password == password,
     ).toList();
@@ -92,9 +87,7 @@ class _LoginPageState extends State<LoginPage> {
       return;
     }
 
-    // =========================
-    // 👤 USER LOGIN
-    // =========================
+
     final user = provider.user;
 
     if (user == null) {

@@ -54,7 +54,7 @@ class AppointmentsPage extends StatelessWidget {
                       ),
                       child: Row(
                         children: [
-                          // Date box
+
                           Container(
                             padding: const EdgeInsets.all(10),
                             decoration: BoxDecoration(
@@ -78,7 +78,7 @@ class AppointmentsPage extends StatelessWidget {
 
                           const SizedBox(width: 12),
 
-                          // Details
+
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -101,18 +101,18 @@ class AppointmentsPage extends StatelessWidget {
                                   style: const TextStyle(color: Colors.white70),
                                 ),
 
-                                const SizedBox(height: 6), // ✅ ADDED
+                                const SizedBox(height: 6),
 
 
                                 Container(
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 8, vertical: 4),
                                   decoration: BoxDecoration(
-                                    color: Colors.orange, // Pending color
+                                    color: Colors.orange,
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Text(
-                                    appt.status, // shows "Pending"
+                                    appt.status,
                                     style: const TextStyle(
                                       color: Colors.white,
                                       fontSize: 12,
