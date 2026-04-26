@@ -89,6 +89,7 @@ class HomePage extends StatelessWidget {
                             "Lorem ispum something to be",
                             style: TextStyle(fontSize: 12),
                           ),
+
                         ],
                       ),
                     ),
