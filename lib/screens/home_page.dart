@@ -28,20 +28,13 @@ class HomePage extends StatelessWidget {
               const SizedBox(height: 20),
 
 
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const TextField(
-                  decoration: InputDecoration(
-                    icon: Icon(Icons.search),
-                    hintText: "Search Medical",
-                    border: InputBorder.none,
-                  ),
-                ),
+              Row(
+                mainAxisAlignment: .center,
+                children: [
+              Text("Welcome to MediCare Services", style: TextStyle(fontSize: 20, fontWeight: .bold),),
+               ],
               ),
+
 
               const SizedBox(height: 30),
 

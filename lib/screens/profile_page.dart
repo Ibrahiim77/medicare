@@ -5,7 +5,6 @@ import '../user_provider.dart';
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
 
-
   @override
   Widget build(BuildContext context) {
     return MainScaffold(
@@ -30,7 +29,6 @@ class _EditableProfileBodyState extends State<EditableProfileBody> {
   bool isEditingEmail = false;
   bool isEditingPassword = false;
 
-
   late TextEditingController usernameController;
   late TextEditingController emailController;
   late TextEditingController passwordController;
@@ -40,9 +38,13 @@ class _EditableProfileBodyState extends State<EditableProfileBody> {
     super.didChangeDependencies();
 
     final user = UserProvider.of(context).user;
-    usernameController = TextEditingController(text: user?.username ?? '');
-    emailController = TextEditingController(text: user?.email ?? '');
-    passwordController = TextEditingController(text: user?.password ?? '');
+
+    usernameController =
+        TextEditingController(text: user?.username ?? '');
+    emailController =
+        TextEditingController(text: user?.email ?? '');
+    passwordController =
+        TextEditingController(text: user?.password ?? '');
   }
 
   @override
@@ -54,12 +56,19 @@ class _EditableProfileBodyState extends State<EditableProfileBody> {
   }
 
   void saveChanges() {
+    final provider = UserProvider.of(context);
+    final currentUser = provider.user;
 
-    UserProvider.of(context).updateUser(
-      usernameController.text.trim(),
-      emailController.text.trim(),
-      passwordController.text.trim(),
+    if (currentUser == null) return;
+
+    provider.setUser(
+      currentUser.copyWith(
+        username: usernameController.text.trim(),
+        email: emailController.text.trim(),
+        password: passwordController.text.trim(),
+      ),
     );
+
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text("Profile updated!")),
     );
@@ -75,9 +84,13 @@ class _EditableProfileBodyState extends State<EditableProfileBody> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label,
-            style: const TextStyle(
-                fontWeight: FontWeight.bold, fontSize: 20)),
+        Text(
+          label,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+          ),
+        ),
         const SizedBox(height: 5),
         Row(
           children: [
@@ -87,7 +100,6 @@ class _EditableProfileBodyState extends State<EditableProfileBody> {
                 controller: controller,
                 obscureText: isPassword,
                 decoration: InputDecoration(
-                  prefixIcon: const Icon(Icons.person),
                   filled: true,
                   fillColor: Colors.grey[200],
                   border: OutlineInputBorder(
@@ -98,8 +110,7 @@ class _EditableProfileBodyState extends State<EditableProfileBody> {
               )
                   : Container(
                 height: 50,
-                padding:
-                const EdgeInsets.symmetric(horizontal: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 12),
                 decoration: BoxDecoration(
                   color: Colors.grey[200],
                   borderRadius: BorderRadius.circular(10),
@@ -107,10 +118,11 @@ class _EditableProfileBodyState extends State<EditableProfileBody> {
                 child: Row(
                   children: [
                     const Icon(Icons.person),
-                    const SizedBox(width: 5),
+                    const SizedBox(width: 8),
                     Text(
-                      isPassword ? "••••••••" : controller.text,
-                      style: const TextStyle(color: Colors.black),
+                      isPassword
+                          ? "••••••••"
+                          : controller.text,
                     ),
                   ],
                 ),
@@ -119,8 +131,13 @@ class _EditableProfileBodyState extends State<EditableProfileBody> {
             IconButton(
               icon: Icon(isEditing ? Icons.check : Icons.edit),
               onPressed: () {
-                setState(() => toggleEdit());
-                if (isEditing) saveChanges();
+                setState(() {
+                  toggleEdit();
+                });
+
+                if (isEditing) {
+                  saveChanges();
+                }
               },
             ),
           ],
@@ -132,6 +149,8 @@ class _EditableProfileBodyState extends State<EditableProfileBody> {
 
   @override
   Widget build(BuildContext context) {
+    final user = UserProvider.of(context).user;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -145,24 +164,37 @@ class _EditableProfileBodyState extends State<EditableProfileBody> {
             ),
           ],
         ),
+
         const SizedBox(height: 20),
+
+        Text(
+          "Role: ${user?.role.name.toUpperCase() ?? "UNKNOWN"}",
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+
+        const SizedBox(height: 20),
+
         buildEditableField(
           label: "Username",
           controller: usernameController,
           isEditing: isEditingUsername,
-          toggleEdit: () => isEditingUsername = !isEditingUsername,
+          toggleEdit: () =>
+          isEditingUsername = !isEditingUsername,
         ),
+
         buildEditableField(
           label: "Email",
           controller: emailController,
           isEditing: isEditingEmail,
           toggleEdit: () => isEditingEmail = !isEditingEmail,
         ),
+
         buildEditableField(
           label: "Password",
           controller: passwordController,
           isEditing: isEditingPassword,
-          toggleEdit: () => isEditingPassword = !isEditingPassword,
+          toggleEdit: () =>
+          isEditingPassword = !isEditingPassword,
           isPassword: true,
         ),
       ],

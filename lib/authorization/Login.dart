@@ -1,7 +1,7 @@
+import 'package:check/authorization/logAppbar.dart';
 import 'package:flutter/material.dart';
-import './logAppbar.dart';
 import '../user_provider.dart';
-import '../Doctors/DoctorStore.dart';
+import 'logAppbar.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -36,64 +36,102 @@ class _LoginPageState extends State<LoginPage> {
     String email = emailController.text.trim();
     String password = passwordController.text.trim();
 
-    bool isValid = true;
-
     if (email.isEmpty) {
       setState(() => emailError = "Email is required");
-      isValid = false;
+      return;
     }
 
     if (password.isEmpty) {
       setState(() => passwordError = "Password is required");
-      isValid = false;
+      return;
     }
 
-    if (!isValid) return;
+    final provider = UserProvider.of(context);
 
+    // =========================
+    // 🛠 ADMIN LOGIN
+    // =========================
+    final adminMatch = admins.where(
+          (a) => a.email == email && a.password == password,
+    ).toList();
 
-    final matchedDoctor = availableDoctors.where(
+    if (adminMatch.isNotEmpty) {
+      provider.setUser(
+        UserData(
+          username: "Admin",
+          email: email,
+          password: password,
+          role: UserRole.admin,
+        ),
+      );
+
+      Navigator.pushReplacementNamed(context, '/admin');
+      return;
+    }
+
+    // =========================
+    // 🧑‍⚕️ DOCTOR LOGIN
+    // =========================
+    final doctorMatch = availableDoctors.where(
           (d) => d.email == email && d.password == password,
-    ).firstOrNull;
+    ).toList();
 
-    if (matchedDoctor != null) {
+    if (doctorMatch.isNotEmpty) {
+      final doc = doctorMatch.first;
 
-      DoctorProvider.of(context).loginDoctor(matchedDoctor);
+      provider.setUser(
+        UserData(
+          username: doc.name,
+          email: doc.email,
+          password: doc.password,
+          role: UserRole.doctor,
+        ),
+      );
+
       Navigator.pushReplacementNamed(context, '/doctors');
       return;
     }
 
-    final user = UserProvider.of(context).user;
+    // =========================
+    // 👤 USER LOGIN
+    // =========================
+    final user = provider.user;
 
     if (user == null) {
-      setState(() => generalError = "No account found. Please sign up first.");
+      setState(() {
+        generalError = "No account found. Please sign up first.";
+      });
       return;
     }
 
-    if (user.email != email || user.password != password) {
-      setState(() => generalError = "Wrong email or password.");
+    if (user.email == email && user.password == password) {
+      provider.setUser(
+        user.copyWith(role: UserRole.user),
+      );
+
+      Navigator.pushReplacementNamed(context, '/home');
       return;
     }
 
-
-    Navigator.pushReplacementNamed(context, '/home');
+    setState(() {
+      generalError = "Wrong email or password.";
+    });
   }
-
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: myAppBar(),
-      resizeToAvoidBottomInset: true,
       body: Center(
         child: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.all(20),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text("Login",
-                    style: TextStyle(
-                        fontSize: 30, fontWeight: FontWeight.bold)),
+                const Text(
+                  "Login",
+                  style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+                ),
                 const SizedBox(height: 30),
 
                 if (generalError.isNotEmpty)
@@ -106,8 +144,10 @@ class _LoginPageState extends State<LoginPage> {
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(color: Colors.red.shade200),
                     ),
-                    child: Text(generalError,
-                        style: const TextStyle(color: Colors.red)),
+                    child: Text(
+                      generalError,
+                      style: const TextStyle(color: Colors.red),
+                    ),
                   ),
 
                 TextField(
@@ -116,10 +156,13 @@ class _LoginPageState extends State<LoginPage> {
                     labelText: "Email",
                     errorText: emailError.isEmpty ? null : emailError,
                     border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10)),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
                   ),
                 ),
+
                 const SizedBox(height: 20),
+
                 TextField(
                   controller: passwordController,
                   obscureText: isPasswordHidden,
@@ -127,40 +170,60 @@ class _LoginPageState extends State<LoginPage> {
                     labelText: "Password",
                     errorText: passwordError.isEmpty ? null : passwordError,
                     border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10)),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
                     suffixIcon: IconButton(
-                      icon: Icon(isPasswordHidden
-                          ? Icons.visibility
-                          : Icons.visibility_off),
-                      onPressed: () => setState(
-                              () => isPasswordHidden = !isPasswordHidden),
+                      icon: Icon(
+                        isPasswordHidden
+                            ? Icons.visibility
+                            : Icons.visibility_off,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          isPasswordHidden = !isPasswordHidden;
+                        });
+                      },
                     ),
                   ),
                 ),
+
                 const SizedBox(height: 35),
+
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue),
+                      backgroundColor: Colors.blue,
+                    ),
                     onPressed: login,
-                    child: const Text("Login",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black)),
+                    child: const Text(
+                      "Login",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                    ),
                   ),
                 ),
+
+                const SizedBox(height: 10),
+
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue),
-                    onPressed: () =>
-                        Navigator.pushReplacementNamed(context, '/signup'),
-                    child: const Text("Sign up",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black)),
+                      backgroundColor: Colors.blue,
+                    ),
+                    onPressed: () {
+                      Navigator.pushReplacementNamed(context, '/signup');
+                    },
+                    child: const Text(
+                      "Sign up",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                    ),
                   ),
                 ),
               ],

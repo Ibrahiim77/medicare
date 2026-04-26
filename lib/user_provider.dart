@@ -1,39 +1,128 @@
 import 'package:flutter/material.dart';
 
+/// =======================
+/// 🔐 ROLE ENUM
+/// =======================
+enum UserRole {
+  user,
+  doctor,
+  admin,
+}
+
+/// =======================
+/// 🧑‍⚕️ DOCTOR MODEL + DATA
+/// =======================
+class Doctor {
+  final String name;
+  final String email;
+  final String password;
+  final String specialty;
+
+  const Doctor({
+    required this.name,
+    required this.email,
+    required this.password,
+    required this.specialty,
+  });
+}
+
+const List<Doctor> availableDoctors = [
+  Doctor(
+    name: "Dr. Ahmed Khan",
+    email: "ahmed@hospital.com",
+    password: "ahmed123",
+    specialty: "Cardiologist",
+  ),
+  Doctor(
+    name: "Dr. Sara Malik",
+    email: "sara@hospital.com",
+    password: "sara123",
+    specialty: "Neurologist",
+  ),
+  Doctor(
+    name: "Dr. Usman Ali",
+    email: "usman@hospital.com",
+    password: "usman123",
+    specialty: "Dermatologist",
+  ),
+  Doctor(
+    name: "Dr. Ayesha Rahman",
+    email: "ayesha@hospital.com",
+    password: "ayesha123",
+    specialty: "Pediatrician",
+  ),
+  Doctor(
+    name: "Dr. Hamza Iqbal",
+    email: "hamza@hospital.com",
+    password: "hamza123",
+    specialty: "Orthopedic Surgeon",
+  ),
+];
+
+/// =======================
+/// 🛠 ADMIN DATA
+/// =======================
+class Admin {
+  final String email;
+  final String password;
+
+  const Admin({
+    required this.email,
+    required this.password,
+  });
+}
+
+const List<Admin> admins = [
+  Admin(
+    email: "admin@hospital.com",
+    password: "admin123",
+  ),
+];
+
+/// =======================
+/// 👤 USER MODEL
+/// =======================
 class UserData {
   final String username;
   final String email;
   final String password;
+  final UserRole role;
 
   UserData({
     required this.username,
     required this.email,
     required this.password,
+    required this.role,
   });
 
   UserData copyWith({
     String? username,
     String? email,
     String? password,
+    UserRole? role,
   }) {
     return UserData(
       username: username ?? this.username,
       email: email ?? this.email,
       password: password ?? this.password,
+      role: role ?? this.role,
     );
   }
 }
 
+/// =======================
+/// 🔁 RBAC PROVIDER
+/// =======================
 class UserProvider extends InheritedWidget {
   final UserData? user;
-  final void Function(UserData) registerUser;
-  final void Function(String, String, String) updateUser;
+  final void Function(UserData) setUser;
+  final void Function() logout;
 
   const UserProvider({
     super.key,
     required this.user,
-    required this.registerUser,
-    required this.updateUser,
+    required this.setUser,
+    required this.logout,
     required super.child,
   });
 
@@ -45,9 +134,13 @@ class UserProvider extends InheritedWidget {
   }
 
   @override
-  bool updateShouldNotify(UserProvider oldWidget) => user != oldWidget.user;
+  bool updateShouldNotify(UserProvider oldWidget) =>
+      user != oldWidget.user;
 }
 
+/// =======================
+/// 🏪 STORE (STATE HOLDER)
+/// =======================
 class UserStore extends StatefulWidget {
   final Widget child;
   const UserStore({super.key, required this.child});
@@ -59,27 +152,83 @@ class UserStore extends StatefulWidget {
 class _UserStoreState extends State<UserStore> {
   UserData? _user;
 
-  void _register(UserData user) {
+  void _setUser(UserData user) {
     setState(() => _user = user);
   }
 
-  void _update(String username, String email, String password) {
-    setState(() {
-      _user = _user?.copyWith(
-        username: username,
-        email: email,
-        password: password,
-      );
-    });
+  void _logout() {
+    setState(() => _user = null);
   }
 
   @override
   Widget build(BuildContext context) {
     return UserProvider(
       user: _user,
-      registerUser: _register,
-      updateUser: _update,
+      setUser: _setUser,
+      logout: _logout,
       child: widget.child,
     );
+  }
+}
+
+/// =======================
+/// 🔐 LOGIN HELPER FUNCTION
+/// =======================
+void loginUser({
+  required BuildContext context,
+  required String email,
+  required String password,
+}) {
+  // ---------------- ADMIN LOGIN ----------------
+  final adminMatch = admins.where(
+        (a) => a.email == email && a.password == password,
+  ).toList();
+
+  if (adminMatch.isNotEmpty) {
+    UserProvider.of(context).setUser(
+      UserData(
+        username: "Admin",
+        email: email,
+        password: password,
+        role: UserRole.admin,
+      ),
+    );
+
+    Navigator.pushReplacementNamed(context, '/admin');
+    return;
+  }
+
+  // ---------------- DOCTOR LOGIN ----------------
+  final doctorMatch = availableDoctors.where(
+        (d) => d.email == email && d.password == password,
+  ).toList();
+
+  if (doctorMatch.isNotEmpty) {
+    final doc = doctorMatch.first;
+
+    UserProvider.of(context).setUser(
+      UserData(
+        username: doc.name,
+        email: doc.email,
+        password: doc.password,
+        role: UserRole.doctor,
+      ),
+    );
+
+    Navigator.pushReplacementNamed(context, '/doctors');
+    return;
+  }
+
+  // ---------------- USER LOGIN ----------------
+  final user = UserProvider.of(context).user;
+
+  if (user == null) return;
+
+  if (user.email == email && user.password == password) {
+    UserProvider.of(context).setUser(
+      user.copyWith(role: UserRole.user),
+    );
+
+    Navigator.pushReplacementNamed(context, '/home');
   }
 }

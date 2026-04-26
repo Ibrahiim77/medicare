@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import '../Doctors/DoctorStore.dart';
+import '../user_provider.dart';
 
-class SelectDoctorPage extends StatelessWidget {
-
+class SelectDoctorPage extends StatefulWidget {
   final void Function(String doctorName) onDoctorSelected;
 
   const SelectDoctorPage({
@@ -11,39 +10,109 @@ class SelectDoctorPage extends StatelessWidget {
   });
 
   @override
+  State<SelectDoctorPage> createState() => _SelectDoctorPageState();
+}
+
+class _SelectDoctorPageState extends State<SelectDoctorPage> {
+  String query = "";
+
+  @override
   Widget build(BuildContext context) {
+    final doctors = availableDoctors;
+
+    // 🔎 SMART SEARCH (name + specialty + partial specialty words)
+    final filteredDoctors = doctors.where((doctor) {
+      final q = query.toLowerCase().trim();
+
+      final name = doctor.name.toLowerCase();
+      final specialty = doctor.specialty.toLowerCase();
+      final specialtyWords = specialty.split(' ');
+
+      return name.contains(q) ||
+          specialty.contains(q) ||
+          specialtyWords.any((word) => word.contains(q));
+    }).toList();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(
           "Select Doctor",
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        backgroundColor: Colors.blue[700],
+        backgroundColor: Colors.blue,
         foregroundColor: Colors.white,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: GridView.builder(
-          itemCount: availableDoctors.length,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
-            childAspectRatio: 0.75,
+
+      body: Column(
+        children: [
+
+          // =========================
+          // 🔎 SEARCH BAR
+          // =========================
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: TextField(
+              onChanged: (value) {
+                setState(() {
+                  query = value;
+                });
+              },
+              decoration: InputDecoration(
+                hintText: "Search by name or specialty...",
+                prefixIcon: const Icon(Icons.search),
+                filled: true,
+                fillColor: Colors.grey[200],
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+            ),
           ),
-          itemBuilder: (context, index) {
-            final doctor = availableDoctors[index];
-            return _DoctorCard(
-              doctor: doctor,
-              onDoctorSelected: onDoctorSelected,
-            );
-          },
-        ),
+
+          // =========================
+          // GRID LIST
+          // =========================
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: filteredDoctors.isEmpty
+                  ? const Center(
+                child: Text(
+                  "No doctors found",
+                  style: TextStyle(fontSize: 16),
+                ),
+              )
+                  : GridView.builder(
+                itemCount: filteredDoctors.length,
+                gridDelegate:
+                const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                  childAspectRatio: 0.75,
+                ),
+                itemBuilder: (context, index) {
+                  final doctor = filteredDoctors[index];
+
+                  return _DoctorCard(
+                    doctor: doctor,
+                    onDoctorSelected:
+                    widget.onDoctorSelected,
+                  );
+                },
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 }
 
+// =========================
+// DOCTOR CARD
+// =========================
 class _DoctorCard extends StatelessWidget {
   final Doctor doctor;
   final void Function(String doctorName) onDoctorSelected;
@@ -64,62 +133,65 @@ class _DoctorCard extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+
           const SizedBox(height: 16),
 
+          // ICON
           CircleAvatar(
             radius: 40,
-            backgroundColor: Colors.blue[100],
-            child: Icon(
+            backgroundColor: Colors.blue,
+            child: const Icon(
               Icons.medical_services,
               size: 40,
-              color: Colors.blue[700],
+              color: Colors.white,
             ),
           ),
 
           const SizedBox(height: 12),
 
+          // SPECIALTY
           Text(
             doctor.specialty,
             style: TextStyle(
-              color: Colors.blue[700],
+              color: Colors.blue.shade700,
               fontSize: 12,
               fontWeight: FontWeight.w500,
             ),
-            textAlign: TextAlign.center,
           ),
 
           const SizedBox(height: 4),
 
+          // NAME
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8),
             child: Text(
               doctor.name,
+              textAlign: TextAlign.center,
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 14,
               ),
-              textAlign: TextAlign.center,
             ),
           ),
 
           const SizedBox(height: 12),
 
+          // SELECT BUTTON
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12),
             child: SizedBox(
               width: double.infinity,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue[700],
+                  backgroundColor: Colors.blue,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  padding:
+                  const EdgeInsets.symmetric(vertical: 8),
                 ),
                 onPressed: () {
-
                   onDoctorSelected(doctor.name);
-
                   Navigator.pop(context);
                 },
                 child: const Text(

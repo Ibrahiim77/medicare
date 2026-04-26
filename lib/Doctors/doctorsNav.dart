@@ -45,11 +45,11 @@ class _DocScaffoldState extends State<DocScaffold> {
             ),
             ListTile(
               title: const Text("Appointments"),
-              onTap: () => Navigator.pushReplacementNamed(context, '/docappointments'),
+              onTap: () => Navigator.pushReplacementNamed(context, '/doctorsappointment'),
             ),
             ListTile(
               title: const Text("Profile"),
-              onTap: () => Navigator.pushReplacementNamed(context, '/profile'),
+              onTap: () => Navigator.pushReplacementNamed(context, '/docprofile'),
             ),
             ListTile(
               title: const Text("Logout"),

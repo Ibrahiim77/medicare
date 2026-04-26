@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'appointments_provider.dart';
 import 'user_provider.dart';
-import 'package:check/Doctors/DoctorStore.dart';
 import 'main_screen.dart';
 import 'screens/home_page.dart';
 import 'screens/profile_page.dart';
@@ -25,7 +24,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return AppointmentStore(
       child: UserStore(
-        child: DoctorStore(
+
           child: MaterialApp(
             initialRoute: '/',
             routes: {
@@ -45,7 +44,6 @@ class MyApp extends StatelessWidget {
             ),
           ),
         ),
-      ),
     );
   }
 }

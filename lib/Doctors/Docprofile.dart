@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
+import '../user_provider.dart';
 import 'doctorsNav.dart';
-import 'DoctorStore.dart';
 
 class DocProfilePage extends StatelessWidget {
   const DocProfilePage({super.key});
-
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +29,6 @@ class _EditableProfileBodyState extends State<EditableProfileBody> {
   bool isEditingEmail = false;
   bool isEditingPassword = false;
 
-
   late TextEditingController usernameController;
   late TextEditingController emailController;
   late TextEditingController passwordController;
@@ -39,10 +37,22 @@ class _EditableProfileBodyState extends State<EditableProfileBody> {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    final user = DoctorProvider.of(context).loggedInDoctor;
-    usernameController = TextEditingController(text: user?.name ?? '');
-    emailController = TextEditingController(text: user?.email ?? '');
-    passwordController = TextEditingController(text: user?.password ?? '');
+    final user = UserProvider.of(context).user;
+
+
+    if (user == null || user.role.name != "doctor") {
+      usernameController = TextEditingController(text: '');
+      emailController = TextEditingController(text: '');
+      passwordController = TextEditingController(text: '');
+      return;
+    }
+
+    usernameController =
+        TextEditingController(text: user.username);
+    emailController =
+        TextEditingController(text: user.email);
+    passwordController =
+        TextEditingController(text: user.password);
   }
 
   @override
@@ -53,22 +63,48 @@ class _EditableProfileBodyState extends State<EditableProfileBody> {
     super.dispose();
   }
 
+  void saveChanges() {
+    final provider = UserProvider.of(context);
+    final currentUser = provider.user;
 
+    // 🚨 ROLE SAFETY CHECK
+    if (currentUser == null ||
+        currentUser.role.name != "doctor") {
+      return;
+    }
+
+    provider.setUser(
+      currentUser.copyWith(
+        username: usernameController.text.trim(),
+        email: emailController.text.trim(),
+        password: passwordController.text.trim(),
+      ),
+    );
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Doctor profile updated!")),
+    );
+  }
 
   Widget buildEditableField({
     required String label,
     required TextEditingController controller,
     required bool isEditing,
-    required Function toggleEdit,
+    required VoidCallback toggleEdit,
     bool isPassword = false,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label,
-            style: const TextStyle(
-                fontWeight: FontWeight.bold, fontSize: 20)),
+        Text(
+          label,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+          ),
+        ),
         const SizedBox(height: 5),
+
         Row(
           children: [
             Expanded(
@@ -77,7 +113,6 @@ class _EditableProfileBodyState extends State<EditableProfileBody> {
                 controller: controller,
                 obscureText: isPassword,
                 decoration: InputDecoration(
-                  prefixIcon: const Icon(Icons.person),
                   filled: true,
                   fillColor: Colors.grey[200],
                   border: OutlineInputBorder(
@@ -88,8 +123,7 @@ class _EditableProfileBodyState extends State<EditableProfileBody> {
               )
                   : Container(
                 height: 50,
-                padding:
-                const EdgeInsets.symmetric(horizontal: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 12),
                 decoration: BoxDecoration(
                   color: Colors.grey[200],
                   borderRadius: BorderRadius.circular(10),
@@ -97,17 +131,32 @@ class _EditableProfileBodyState extends State<EditableProfileBody> {
                 child: Row(
                   children: [
                     const Icon(Icons.person),
-                    const SizedBox(width: 5),
+                    const SizedBox(width: 8),
                     Text(
-                      isPassword ? "••••••••" : controller.text,
-                      style: const TextStyle(color: Colors.black),
+                      isPassword
+                          ? "••••••••"
+                          : controller.text,
                     ),
                   ],
                 ),
               ),
             ),
+
+            IconButton(
+              icon: Icon(isEditing ? Icons.check : Icons.edit),
+              onPressed: () {
+                setState(() {
+                  toggleEdit();
+                });
+
+                if (isEditing) {
+                  saveChanges();
+                }
+              },
+            ),
           ],
         ),
+
         const SizedBox(height: 20),
       ],
     );
@@ -115,6 +164,18 @@ class _EditableProfileBodyState extends State<EditableProfileBody> {
 
   @override
   Widget build(BuildContext context) {
+    final user = UserProvider.of(context).user;
+
+    // 🚨 BLOCK WRONG ROLE ACCESS
+    if (user == null || user.role.name != "doctor") {
+      return const Center(
+        child: Text(
+          "Access Denied: Not a Doctor",
+          style: TextStyle(fontSize: 18, color: Colors.red),
+        ),
+      );
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -124,28 +185,56 @@ class _EditableProfileBodyState extends State<EditableProfileBody> {
             CircleAvatar(
               radius: 65,
               backgroundColor: Colors.blue,
-              child: Icon(Icons.person, size: 60, color: Colors.white),
+              child: Icon(
+                Icons.medical_services,
+                size: 60,
+                color: Colors.white,
+              ),
             ),
           ],
         ),
+
         const SizedBox(height: 20),
+
+        const Text(
+          "Doctor Profile",
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+
+        const SizedBox(height: 10),
+
+        Text(
+          "Role: DOCTOR",
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+
+        const SizedBox(height: 20),
+
         buildEditableField(
           label: "Username",
           controller: usernameController,
           isEditing: isEditingUsername,
-          toggleEdit: () => isEditingUsername = !isEditingUsername,
+          toggleEdit: () =>
+          isEditingUsername = !isEditingUsername,
         ),
+
         buildEditableField(
           label: "Email",
           controller: emailController,
           isEditing: isEditingEmail,
-          toggleEdit: () => isEditingEmail = !isEditingEmail,
+          toggleEdit: () =>
+          isEditingEmail = !isEditingEmail,
         ),
+
         buildEditableField(
           label: "Password",
           controller: passwordController,
           isEditing: isEditingPassword,
-          toggleEdit: () => isEditingPassword = !isEditingPassword,
+          toggleEdit: () =>
+          isEditingPassword = !isEditingPassword,
           isPassword: true,
         ),
       ],
