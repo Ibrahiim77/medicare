@@ -3,51 +3,62 @@ import 'package:http/http.dart' as http;
 import '../config/api.dart';
 
 class AdminService {
-
-  static Future<List<dynamic>> getDoctors() async {
-    final res = await http.get(
-      Uri.parse("${ApiConfig.baseUrl}/doctors"),
-      headers: {"Content-Type": "application/json"},
-    );
-
-    final data = jsonDecode(res.body);
-    return List<dynamic>.from(data["data"] ?? []);
+  // ✅ FIXED: Returns Map so UI can read res["data"]
+  static Future<Map<String, dynamic>> getDoctors() async {
+    try {
+      final res = await http.get(
+        Uri.parse("${ApiConfig.baseUrl}/doctors"),
+        headers: {"Content-Type": "application/json"},
+      );
+      return jsonDecode(res.body);
+    } catch (e) {
+      return {"success": false, "data": [], "message": e.toString()};
+    }
   }
 
-  static Future<List<dynamic>> getAdmins() async {
-    final res = await http.get(
-      Uri.parse("${ApiConfig.baseUrl}/admins"),
-      headers: {"Content-Type": "application/json"},
-    );
-
-    final data = jsonDecode(res.body);
-    return List<dynamic>.from(data["data"] ?? []);
+  static Future<Map<String, dynamic>> getAdmins() async {
+    try {
+      final res = await http.get(
+        Uri.parse("${ApiConfig.baseUrl}/admins"),
+        headers: {"Content-Type": "application/json"},
+      );
+      return jsonDecode(res.body);
+    } catch (e) {
+      return {"success": false, "data": []};
+    }
   }
 
-  static Future<List<dynamic>> getAppointments() async {
-    final res = await http.get(
-      Uri.parse("${ApiConfig.baseUrl}/appointments"),
-      headers: {"Content-Type": "application/json"},
-    );
-
-    final data = jsonDecode(res.body);
-    return List<dynamic>.from(data["data"] ?? []);
+  static Future<Map<String, dynamic>> getAppointments() async {
+    try {
+      final res = await http.get(
+        Uri.parse("${ApiConfig.baseUrl}/appointments"),
+        headers: {"Content-Type": "application/json"},
+      );
+      return jsonDecode(res.body);
+    } catch (e) {
+      return {"success": false, "data": []};
+    }
   }
 
-  // ✅ FIX ADDED HERE
   static Future<Map<String, dynamic>> addAdmin(
+      String name,
       String email,
       String password,
       ) async {
-    final res = await http.post(
-      Uri.parse("${ApiConfig.baseUrl}/admins"),
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode({
-        "email": email,
-        "password": password,
-      }),
-    );
-
-    return jsonDecode(res.body);
+    try {
+      final res = await http.post(
+        Uri.parse("${ApiConfig.baseUrl}/admins"),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({
+          "username": name,
+          "email": email,
+          "password": password,
+          "role": "admin",
+        }),
+      );
+      return jsonDecode(res.body);
+    } catch (e) {
+      return {"success": false, "message": "Network error"};
+    }
   }
 }

@@ -10,115 +10,104 @@ class AddDoctorPage extends StatefulWidget {
 }
 
 class _AddDoctorPageState extends State<AddDoctorPage> {
-  final name = TextEditingController(); // optional UI only
-  final email = TextEditingController();
-  final password = TextEditingController();
-  final specialty = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _specialtyController = TextEditingController();
 
-  bool loading = false;
+  bool _isLoading = false;
 
-  Future<void> addDoctor() async {
-    if (email.text.isEmpty ||
-        password.text.isEmpty ||
-        specialty.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please fill all required fields")),
-      );
-      return;
-    }
+  Future<void> _handleSaveDoctor() async {
+    if (!_formKey.currentState!.validate()) return;
 
-    setState(() => loading = true);
+    setState(() => _isLoading = true);
 
     try {
       final res = await DoctorService.addDoctor(
-        email: email.text.trim(),
-        password: password.text.trim(),
-        specialty: specialty.text.trim(),
+        name: _nameController.text.trim(),
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+        specialty: _specialtyController.text.trim(),
       );
+
+      if (!mounted) return;
 
       if (res["success"] == true) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Doctor added successfully")),
-        );
-
-        email.clear();
-        password.clear();
-        specialty.clear();
-        name.clear();
+        _showSnackBar("Doctor profile created!", Colors.green);
+        _formKey.currentState!.reset(); // Clears all fields
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(res["message"] ?? "Failed to add doctor")),
-        );
+        _showSnackBar(res["message"] ?? "Failed to add doctor", Colors.orange);
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error: $e")),
-      );
+      _showSnackBar("Server connection failed", Colors.red);
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
+  }
 
-    setState(() => loading = false);
+  void _showSnackBar(String msg, Color color) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(msg), backgroundColor: color, behavior: SnackBarBehavior.floating),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return AdminScaffold(
       currentIndex: 1,
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text("Add New Doctor",
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 30),
 
-            const Text(
-              "Add Doctor",
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-            ),
+              _buildField(_nameController, "Full Name", Icons.person_add_alt),
+              const SizedBox(height: 15),
+              _buildField(_emailController, "Email Address", Icons.email_outlined),
+              const SizedBox(height: 15),
+              _buildField(_passwordController, "Login Password", Icons.lock_outline, obscure: true),
+              const SizedBox(height: 15),
+              _buildField(_specialtyController, "Specialty (e.g. Cardiologist)", Icons.medical_services_outlined),
 
-            const SizedBox(height: 20),
+              const SizedBox(height: 40),
 
-            TextField(
-              controller: email,
-              decoration: const InputDecoration(
-                labelText: "Email",
-                border: OutlineInputBorder(),
-              ),
-            ),
-
-            const SizedBox(height: 10),
-
-            TextField(
-              controller: password,
-              obscureText: true,
-              decoration: const InputDecoration(
-                labelText: "Password",
-                border: OutlineInputBorder(),
-              ),
-            ),
-
-            const SizedBox(height: 10),
-
-            TextField(
-              controller: specialty,
-              decoration: const InputDecoration(
-                labelText: "Specialty",
-                border: OutlineInputBorder(),
-              ),
-            ),
-
-            const SizedBox(height: 20),
-
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                onPressed: loading ? null : addDoctor,
-                child: Text(
-                  loading ? "Adding..." : "Add Doctor",
+              SizedBox(
+                width: double.infinity,
+                height: 55,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blueAccent,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  onPressed: _isLoading ? null : _handleSaveDoctor,
+                  child: _isLoading
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : const Text("Register Doctor", style: TextStyle(color: Colors.white, fontSize: 16)),
                 ),
-              ),
-            )
-          ],
+              )
+            ],
+          ),
         ),
       ),
+    );
+  }
+
+  Widget _buildField(TextEditingController controller, String label, IconData icon, {bool obscure = false}) {
+    return TextFormField(
+      controller: controller,
+      obscureText: obscure,
+      decoration: InputDecoration(
+        labelText: label,
+        prefixIcon: Icon(icon),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+      validator: (val) => val!.isEmpty ? "Field required" : null,
     );
   }
 }

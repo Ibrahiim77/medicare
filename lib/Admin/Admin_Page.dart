@@ -10,8 +10,9 @@ class AdminDashboard extends StatefulWidget {
 }
 
 class _AdminDashboardState extends State<AdminDashboard> {
-  List<Map<String, dynamic>> doctors = [];
-  List<Map<String, dynamic>> admins = [];
+  // Changed to dynamic List to avoid strict Map casting issues during load
+  List doctors = [];
+  List admins = [];
   bool loading = true;
 
   @override
@@ -22,16 +23,20 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
   Future<void> loadData() async {
     try {
-      final docData = await AdminService.getDoctors();
-      final adminData = await AdminService.getAdmins();
+      final docRes = await AdminService.getDoctors();
+      final adminRes = await AdminService.getAdmins();
 
-      setState(() {
-        doctors = List<Map<String, dynamic>>.from(docData);
-        admins = List<Map<String, dynamic>>.from(adminData);
-        loading = false;
-      });
+      if (mounted) {
+        setState(() {
+          // Extract the 'data' list from the response Map
+          doctors = docRes["data"] ?? [];
+          admins = adminRes["data"] ?? [];
+          loading = false;
+        });
+      }
     } catch (e) {
-      setState(() => loading = false);
+      debugPrint("Dashboard Load Error: $e");
+      if (mounted) setState(() => loading = false);
     }
   }
 
@@ -41,20 +46,16 @@ class _AdminDashboardState extends State<AdminDashboard> {
       currentIndex: 0,
       body: loading
           ? const Center(child: CircularProgressIndicator())
-          : Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          : RefreshIndicator( // Added RefreshIndicator for better UX
+        onRefresh: loadData,
+        child: ListView( // Used ListView to make the whole page scrollable
+          padding: const EdgeInsets.all(16),
           children: [
-
             const Text(
               "Dashboard Overview",
-              style: TextStyle(
-                  fontSize: 22, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
             ),
-
             const SizedBox(height: 20),
-
             Row(
               children: [
                 _card("Doctors", doctors.length, Icons.medical_services),
@@ -62,37 +63,28 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 _card("Admins", admins.length, Icons.admin_panel_settings),
               ],
             ),
-
-            const SizedBox(height: 20),
-
+            const SizedBox(height: 30),
             const Text(
-              "Doctors",
-              style: TextStyle(fontWeight: FontWeight.bold),
+              "Doctor List",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-
             const SizedBox(height: 10),
-
-            Expanded(
-              child: ListView.builder(
-                itemCount: doctors.length,
-                itemBuilder: (context, index) {
-                  final d = doctors[index];
-
-                  return Card(
-                    child: ListTile(
-                      leading: const Icon(Icons.person),
-
-                      // SAFE NULL HANDLING
-                      title: Text(
-                        (d["name"] ?? "Unknown").toString(),
-                      ),
-                      subtitle: Text(
-                        (d["specialty"] ?? "No specialty").toString(),
-                      ),
-                    ),
-                  );
-                },
-              ),
+            // Using ListView.builder inside a Column requires shrinkWrap or a Container
+            ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: doctors.length,
+              itemBuilder: (context, index) {
+                final d = doctors[index];
+                return Card(
+                  margin: const EdgeInsets.only(bottom: 8),
+                  child: ListTile(
+                    leading: const CircleAvatar(child: Icon(Icons.person)),
+                    title: Text(d["name"] ?? "Unknown Doctor"),
+                    subtitle: Text(d["specialty"] ?? "No specialty"),
+                  ),
+                );
+              },
             ),
           ],
         ),
@@ -105,19 +97,19 @@ class _AdminDashboardState extends State<AdminDashboard> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.red.withOpacity(0.1),
+          color: Colors.blue.withOpacity(0.1), // Changed to Blue for variety
           borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.blue.withOpacity(0.3)),
         ),
         child: Column(
           children: [
-            Icon(icon, color: Colors.red),
+            Icon(icon, color: Colors.blue, size: 30),
             const SizedBox(height: 10),
             Text(
               count.toString(),
-              style: const TextStyle(
-                  fontSize: 20, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
-            Text(title),
+            Text(title, style: const TextStyle(color: Colors.black54)),
           ],
         ),
       ),

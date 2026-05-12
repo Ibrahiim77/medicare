@@ -9,6 +9,7 @@ app.use(express.json()); // Must be above routes
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/doctors", require("./routes/doctorRoutes"));
 app.use("/api/appointments", require("./routes/appointmentRoutes"));
+app.use("/api/admins", require("./routes/adminRoutes"));
 
 // THE DEBUGGER: This replaces the HTML error with a JSON error
 app.use((req, res) => {

@@ -1,26 +1,27 @@
 const User = require("../models/userModel");
-const db = require("../config/db");
 
 exports.addAdmin = (req, res) => {
-    const { email } = req.body;
+    const { username, email, password } = req.body;
 
-    User.findByEmail(email, (err, result) => {
-        if (err) return res.status(500).json({ success: false });
+    // We explicitly set the role to 'admin' here for security
+    const adminData = {
+        username: username,
+        email: email,
+        password: password,
+        role: 'admin'
+    };
 
-        if (!result.length) {
-            return res.json({ success: false, message: "User not found" });
+    User.create(adminData, (err, result) => {
+        if (err) {
+            console.error("Database Error:", err);
+            return res.status(500).json({
+                success: false,
+                message: "Database error or email already exists"
+            });
         }
-
-        const userId = result[0].id;
-
-        db.query(
-            "INSERT INTO admins (user_id) VALUES (?)",
-            [userId],
-            (err) => {
-                if (err) return res.status(500).json({ success: false });
-
-                res.json({ success: true });
-            }
-        );
+        res.status(201).json({
+            success: true,
+            message: "Admin created successfully"
+        });
     });
 };
