@@ -1,15 +1,51 @@
 import 'package:flutter/material.dart';
-import '../user_provider.dart';
+import '../services/admin_service.dart';
 import 'AdminScaffold.dart';
 
-class AdminMonitorPage extends StatelessWidget {
+class AdminMonitorPage extends StatefulWidget {
   const AdminMonitorPage({super.key});
+
+  @override
+  State<AdminMonitorPage> createState() => _AdminMonitorPageState();
+}
+
+class _AdminMonitorPageState extends State<AdminMonitorPage> {
+  List doctors = [];
+  List admins = [];
+  List appointments = [];
+
+  bool loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    loadData();
+  }
+
+  Future<void> loadData() async {
+    try {
+      final docData = await AdminService.getDoctors();
+      final adminData = await AdminService.getAdmins();
+      final apptData = await AdminService.getAppointments();
+
+      setState(() {
+        doctors = docData;
+        admins = adminData;
+        appointments = apptData;
+        loading = false;
+      });
+    } catch (e) {
+      setState(() => loading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return AdminScaffold(
       currentIndex: 3,
-      body: Padding(
+      body: loading
+          ? const Center(child: CircularProgressIndicator())
+          : Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
@@ -21,9 +57,9 @@ class AdminMonitorPage extends StatelessWidget {
 
             const SizedBox(height: 20),
 
-            _item("Doctors", availableDoctors.length),
+            _item("Doctors", doctors.length),
             _item("Admins", admins.length),
-            _item("Appointments", 0),
+            _item("Appointments", appointments.length),
           ],
         ),
       ),
@@ -35,7 +71,7 @@ class AdminMonitorPage extends StatelessWidget {
       child: ListTile(
         leading: const Icon(Icons.analytics, color: Colors.red),
         title: Text(title),
-        trailing: Text("$count"),
+        trailing: Text(count.toString()),
       ),
     );
   }

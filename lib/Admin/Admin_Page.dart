@@ -1,18 +1,47 @@
 import 'package:flutter/material.dart';
-import '../user_provider.dart';
+import '../services/admin_service.dart';
 import 'AdminScaffold.dart';
 
-class AdminDashboard extends StatelessWidget {
+class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final doctors = availableDoctors;
-    final adminList = admins;
+  State<AdminDashboard> createState() => _AdminDashboardState();
+}
 
+class _AdminDashboardState extends State<AdminDashboard> {
+  List<Map<String, dynamic>> doctors = [];
+  List<Map<String, dynamic>> admins = [];
+  bool loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    loadData();
+  }
+
+  Future<void> loadData() async {
+    try {
+      final docData = await AdminService.getDoctors();
+      final adminData = await AdminService.getAdmins();
+
+      setState(() {
+        doctors = List<Map<String, dynamic>>.from(docData);
+        admins = List<Map<String, dynamic>>.from(adminData);
+        loading = false;
+      });
+    } catch (e) {
+      setState(() => loading = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return AdminScaffold(
       currentIndex: 0,
-      body: Padding(
+      body: loading
+          ? const Center(child: CircularProgressIndicator())
+          : Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -30,7 +59,7 @@ class AdminDashboard extends StatelessWidget {
               children: [
                 _card("Doctors", doctors.length, Icons.medical_services),
                 const SizedBox(width: 10),
-                _card("Admins", adminList.length, Icons.admin_panel_settings),
+                _card("Admins", admins.length, Icons.admin_panel_settings),
               ],
             ),
 
@@ -52,8 +81,14 @@ class AdminDashboard extends StatelessWidget {
                   return Card(
                     child: ListTile(
                       leading: const Icon(Icons.person),
-                      title: Text(d.name),
-                      subtitle: Text(d.specialty),
+
+                      // SAFE NULL HANDLING
+                      title: Text(
+                        (d["name"] ?? "Unknown").toString(),
+                      ),
+                      subtitle: Text(
+                        (d["specialty"] ?? "No specialty").toString(),
+                      ),
                     ),
                   );
                 },
@@ -78,7 +113,7 @@ class AdminDashboard extends StatelessWidget {
             Icon(icon, color: Colors.red),
             const SizedBox(height: 10),
             Text(
-              "$count",
+              count.toString(),
               style: const TextStyle(
                   fontSize: 20, fontWeight: FontWeight.bold),
             ),
