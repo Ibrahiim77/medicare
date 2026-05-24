@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import '../config/api.dart';
+import '../services/appointment_service.dart';
 import '../user_provider.dart';
 import 'doctorsNav.dart';
 
@@ -19,7 +18,6 @@ class _DocAppointmentsPageState extends State<DocAppointmentsPage> {
   @override
   void initState() {
     super.initState();
-    // Use post-frame callback to ensure UserProvider is ready
     WidgetsBinding.instance.addPostFrameCallback((_) {
       fetchAppointments();
     });
@@ -29,55 +27,68 @@ class _DocAppointmentsPageState extends State<DocAppointmentsPage> {
     try {
       final user = UserProvider.of(context).user;
 
-      // SAFETY: If user is not logged in, stop loading immediately
       if (user == null) {
         debugPrint("ERROR: No user found in Provider");
         if (mounted) setState(() => loading = false);
         return;
       }
 
-      final res = await http.get(
-        Uri.parse("${ApiConfig.baseUrl}/appointments"),
-      ).timeout(const Duration(seconds: 10)); // Timeout prevent infinite hang
-
-      final data = jsonDecode(res.body);
+      final res = await AppointmentService.getAppointments();
 
       if (mounted) {
         setState(() {
-          if (data["success"] == true) {
-            final List allData = data["data"] ?? [];
+          if (res["success"] == true) {
+            final List allData = res["data"] ?? [];
 
-            // FILTER: Case-insensitive comparison of doctor_name
+            // FILTER: Case-insensitive match for incoming doctors
             appointments = allData.where((appt) {
               final dbDoc = (appt["doctor_name"] ?? "").toString().toLowerCase().trim();
               final loginDoc = user.username.toLowerCase().trim();
               return dbDoc == loginDoc;
             }).toList();
           }
-          loading = false; // Successfully stop loading
+          loading = false;
         });
       }
     } catch (e) {
       debugPrint("Fetch Appointments Error: $e");
-      if (mounted) {
-        setState(() => loading = false); // Stop loading even if there's an error
-      }
+      if (mounted) setState(() => loading = false);
     }
   }
 
-  Future<void> updateStatus(String id, String status) async {
+  Future<void> handleUpdateStatus(dynamic appt, String status) async {
     try {
-      final res = await http.put(
-        Uri.parse("${ApiConfig.baseUrl}/appointments/$id"),
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode({"status": status}),
-      );
+      debugPrint("Full Row Map Target Payload: $appt");
 
-      if (jsonDecode(res.body)["success"] == true) {
-        fetchAppointments(); // Refresh data
+      // Fallback extraction check: handles both 'id' and 'appointment_id'
+      final dynamic rawId = appt["id"] ?? appt["appointment_id"];
+
+      if (rawId == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Error: ID field missing in database payload structure")),
+        );
+        return;
+      }
+
+      final int parsedId = int.parse(rawId.toString());
+      setState(() => loading = true);
+
+      // Calls the service layer which handles network delivery
+      final res = await AppointmentService.updateStatus(parsedId, status);
+
+      if (res["success"] == true) {
+        await fetchAppointments(); // Reload list to instantly reflect change
+      } else {
+        if (mounted) {
+          setState(() => loading = false);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Failed to update status: ${res['message'] ?? 'Database error'}")),
+          );
+        }
       }
     } catch (e) {
-      debugPrint("Update Status Error: $e");
+      debugPrint("Update Flow Crash Catch: $e");
+      if (mounted) setState(() => loading = false);
     }
   }
 
@@ -122,10 +133,9 @@ class _DocAppointmentsPageState extends State<DocAppointmentsPage> {
   }
 
   Widget _buildAppointmentCard(dynamic appt) {
-    // Determine color based on status
-    Color statusColor = Colors.orange;
+    Color statusColor = Colors.orange; // Pending status color
     if (appt["status"] == "Confirmed") statusColor = Colors.green;
-    if (appt["status"] == "Rejected") statusColor = Colors.red;
+    if (appt["status"] == "Cancelled") statusColor = Colors.red;
 
     return Container(
       decoration: BoxDecoration(
@@ -163,7 +173,7 @@ class _DocAppointmentsPageState extends State<DocAppointmentsPage> {
                   Expanded(
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-                      onPressed: () => updateStatus(appt["id"].toString(), "Confirmed"),
+                      onPressed: () => handleUpdateStatus(appt, "Confirmed"),
                       child: const Text("Confirm", style: TextStyle(color: Colors.white)),
                     ),
                   ),
@@ -171,7 +181,8 @@ class _DocAppointmentsPageState extends State<DocAppointmentsPage> {
                   Expanded(
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                      onPressed: () => updateStatus(appt["id"].toString(), "Rejected"),
+                      // Sending "Cancelled" directly aligns with your MySQL Enum allowed properties!
+                      onPressed: () => handleUpdateStatus(appt, "Cancelled"),
                       child: const Text("Reject", style: TextStyle(color: Colors.white)),
                     ),
                   ),

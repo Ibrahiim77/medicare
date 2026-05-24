@@ -9,10 +9,9 @@ class AppointmentService {
       final res = await http.get(
         Uri.parse("${ApiConfig.baseUrl}/appointments"),
         headers: {"Content-Type": "application/json"},
-      );
+      ).timeout(const Duration(seconds: 10));
 
       if (res.statusCode == 200) {
-        // This decodes the { "success": true, "data": [...] } structure
         return jsonDecode(res.body);
       } else {
         return {"success": false, "message": "Server error", "data": []};
@@ -24,14 +23,13 @@ class AppointmentService {
   }
 
   // BOOK APPOINTMENT
-  static Future<Map<String, dynamic>> bookAppointment(
-      Map<String, dynamic> data) async {
+  static Future<Map<String, dynamic>> bookAppointment(Map<String, dynamic> data) async {
     try {
       final res = await http.post(
         Uri.parse("${ApiConfig.baseUrl}/appointments"),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode(data),
-      );
+      ).timeout(const Duration(seconds: 10));
       return jsonDecode(res.body);
     } catch (e) {
       print("Service Error (POST): $e");
@@ -42,14 +40,19 @@ class AppointmentService {
   // UPDATE STATUS
   static Future<Map<String, dynamic>> updateStatus(int id, String status) async {
     try {
+      final url = Uri.parse("${ApiConfig.baseUrl}/appointments/$id");
+      print("Sending PUT Request to: $url with status: $status");
+
       final res = await http.put(
-        Uri.parse("${ApiConfig.baseUrl}/appointments/$id"),
+        url,
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({"status": status}),
-      );
+      ).timeout(const Duration(seconds: 10));
+
       return jsonDecode(res.body);
     } catch (e) {
-      return {"success": false, "message": "Update failed"};
+      print("Service Error (PUT): $e");
+      return {"success": false, "message": "Network error updating status"};
     }
   }
 }
