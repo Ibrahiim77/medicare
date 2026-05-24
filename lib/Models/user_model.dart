@@ -16,13 +16,9 @@ class UserModel {
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
       id: json['id'] == null ? null : int.tryParse(json['id'].toString()),
-
       username: json['username'] ?? "",
       email: json['email'] ?? "",
-
-      // IMPORTANT: avoid null crash
       password: json['password'] ?? "",
-
       role: json['role']?.toString() ?? "user",
     );
   }

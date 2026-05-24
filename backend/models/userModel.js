@@ -18,7 +18,7 @@ const User = {
             [
                 data.username,
                 data.email,
-                data.password,
+                data.password, // This receives the hashed string from the controller
                 data.role || "user"
             ],
             cb

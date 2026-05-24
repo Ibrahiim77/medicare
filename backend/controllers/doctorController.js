@@ -20,7 +20,7 @@ exports.addDoctor = (req, res) => {
         username: username,
         email: email,
         password: password,
-        role: 'doctor' // Hardcoded role for security
+        role: 'doctor'
     };
 
     User.create(userData, (err, userResult) => {

@@ -1,10 +1,26 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import '../config/api.dart'; // Ensure this points to your http://10.0.2.2:5000/api
+import 'package:shared_preferences/shared_preferences.dart';
+import '../config/api.dart';
 import '../Models/user_model.dart';
 
 class AuthService {
-  // Login Function
+  static Future<void> _saveToken(String token) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('jwt_token', token);
+  }
+
+  static Future<String?> getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('jwt_token');
+  }
+
+  static Future<void> clearToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('jwt_token');
+  }
+
+  // Login Connection
   static Future<Map<String, dynamic>> login(String email, String password) async {
     try {
       final url = Uri.parse("${ApiConfig.baseUrl}/auth/login");
@@ -14,13 +30,19 @@ class AuthService {
         body: jsonEncode({"email": email, "password": password}),
       ).timeout(const Duration(seconds: 10));
 
-      return jsonDecode(res.body);
+      final Map<String, dynamic> data = jsonDecode(res.body);
+
+      if (data["success"] == true && data.containsKey("token")) {
+        await _saveToken(data["token"]);
+      }
+
+      return data;
     } catch (e) {
       return {"success": false, "message": "Login failed: $e"};
     }
   }
 
-  // Signup Function - THIS SAVES TO YOUR DATABASE
+  // Registration Connection
   static Future<Map<String, dynamic>> register(UserModel user) async {
     try {
       final url = Uri.parse("${ApiConfig.baseUrl}/auth/signup");
@@ -31,10 +53,15 @@ class AuthService {
         body: jsonEncode(user.toJson()),
       ).timeout(const Duration(seconds: 10));
 
-      return jsonDecode(res.body);
+      final Map<String, dynamic> data = jsonDecode(res.body);
+
+      if (data["success"] == true && data.containsKey("token")) {
+        await _saveToken(data["token"]);
+      }
+
+      return data;
     } catch (e) {
-      print("Network Error: $e");
-      return {"success": false, "message": "Could not connect to database server"};
+      return {"success": false, "message": "Could not connect to database server: $e"};
     }
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'Models/user_model.dart';
+import '../Models/user_model.dart';
+import '../services/auth_service.dart';
 
 class UserProvider extends InheritedWidget {
   final UserModel? user;
@@ -14,7 +15,6 @@ class UserProvider extends InheritedWidget {
     required super.child,
   });
 
-  // This allows any widget to access the user by calling UserProvider.of(context).user
   static UserProvider of(BuildContext context) {
     final provider = context.dependOnInheritedWidgetOfExactType<UserProvider>();
     assert(provider != null, "UserProvider not found in widget tree. Make sure to wrap MaterialApp in UserStore.");
@@ -23,7 +23,6 @@ class UserProvider extends InheritedWidget {
 
   @override
   bool updateShouldNotify(UserProvider oldWidget) {
-    // Only notify listeners if the user data actually changes
     return oldWidget.user != user;
   }
 }
@@ -45,7 +44,8 @@ class _UserStoreState extends State<UserStore> {
     });
   }
 
-  void logout() {
+  void logout() async {
+    await AuthService.clearToken(); // Clears cached tokens out of local storage
     setState(() {
       user = null;
     });
